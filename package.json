@@ -1,12 +1,14 @@
 {
-  "name": "translate",
+  "name": "happy-translate",
   "version": "0.0.1",
   "description": "Translate tool with commander line.",
   "main": "index.js",
   "scripts": {
     "test": "npm run test"
   },
-  "bin": "index.js",
+  "bin": {
+    "translate": "index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JonathanLee-LX/translate.git"
@@ -26,5 +28,6 @@
     "chalk": "^3.0.0",
     "commander": "^4.1.1",
     "socks-proxy-agent": "^5.0.0"
-  }
+  },
+  "devDependencies": {}
 }
