@@ -27,6 +27,7 @@
     "@jonathanleelx/google-translate-api": "0.0.1",
     "chalk": "^3.0.0",
     "commander": "^4.1.1",
+    "ora": "^4.0.3",
     "socks-proxy-agent": "^5.0.0"
   },
   "devDependencies": {}

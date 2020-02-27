@@ -4,6 +4,7 @@ const commander = require('commander')
 const translate = require('@jonathanleelx/google-translate-api')
 const pkg = require('./package.json')
 const chalk = require('chalk')
+const ora = require('ora')
 
 const program = new commander.Command()
 
@@ -12,11 +13,39 @@ program.version(pkg.version)
 .option('-t, --to [to]', 'specify output language')
 .parse(process.argv)
 
-const from = program.from
-const to = program.to
+let from = program.from
+let to = program.to
 
-translate(program.args.join(' '), {to, from }).then(res => {
-    console.log(chalk.greenBright(res.text))
+const text = program.args.join(' ')
+const enReg = /^[a-zA-Z]+$/
+const zhReg = /^[\u4e00-\u9fa5]+$/
+const isEn = enReg.test(text)
+const isZH = zhReg.test(text)
+
+if(!to) {
+    if(isEn) {
+        to='zh-cn'
+    }else if(isZH) {
+        to='en'
+    }
+}
+
+if(!from) {
+    // 翻译的文本不为中文时，默认翻译为简体中文
+    if(isEn) from='en'
+    if(isZH) from='zh-cn'
+}
+
+const spinner =  ora().start()
+
+// console.log('🚀')
+console.log(chalk.blueBright(`检测到:"${from}"`))
+translate(text, {to, from }).then(res => {
+    spinner.stop()
+    spinner.clear()
+    console.log(chalk.green(to) ,chalk.green('->'), chalk.greenBright(res.text))
 }).catch(err => {
-    console.error(err)
+    spinner.stop()
+    spinner.clear()
+    console.error(chalk.redBright(err))
 })
