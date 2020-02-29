@@ -1,51 +1,68 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const translate = require('@jonathanleelx/google-translate-api')
 const pkg = require('./package.json')
+const https = require('https')
+const http = require('http')
+const SocksAgent = require('socks-proxy-agent')
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
+const translate = require('./translate')
 const chalk = require('chalk')
-const ora = require('ora')
 
 const program = new commander.Command()
 
+const happyRCPath = path.resolve(os.homedir(), '.happyrc')
+const config = JSON.parse(fs.readFileSync(happyRCPath, 'utf8').toString())
+
 program.version(pkg.version)
-.option('-f, --from [from]', 'specify input language')
-.option('-t, --to [to]', 'specify output language')
-.parse(process.argv)
 
-let from = program.from
-let to = program.to
-
-const text = program.args.join(' ')
-const enReg = /^[a-zA-Z]+$/
-const zhReg = /^[\u4e00-\u9fa5]+$/
-const isEn = enReg.test(text)
-const isZH = zhReg.test(text)
-
-if(!to) {
-    if(isEn) {
-        to='zh-cn'
-    }else if(isZH) {
-        to='en'
+const runConfig = (action, cmdObj) => {
+    if(action === 'set') {
+        const newConfig = {...config, proxy: program.proxy}
+        console.log(newConfig)
+        fs.writeFile(happyRCPath, JSON.stringify(newConfig), 'utf8', (err) => {
+            if(err) console.error(err)
+            console.log(chalk.green('set config proxy success!'))
+        })
+    }else if(action === 'reset') {
+        fs.writeFile(happyRCPath, JSON.stringify({}), 'utf8', err => {
+            if(err) console.error(err)
+            console.log(chalk.blue('reset config'))
+        })
     }
 }
 
-if(!from) {
-    // 翻译的文本不为中文时，默认翻译为简体中文
-    if(isEn) from='en'
-    if(isZH) from='zh-cn'
+program.command('config <action>')
+    .option('-p, --proxy', 'specify a proxy')
+    .action(runConfig)
+
+const runTranslate = (dir, cmdObj) => {
+    /**
+     * 代理配置的优先级从高到低是 参数 -> 环境变量 -> 配置文件
+     */
+    const proxy = program.proxy || process.env.PROXY || config.proxy
+    if (proxy) {
+        https.globalAgent = new SocksAgent(proxy)
+        http.globalAgent = new SocksAgent(proxy)
+    }
+    let from = program.from
+    let to = program.to
+    const text = program.args.join(' ')
+    translate(text, to, from)
 }
 
-const spinner =  ora().start()
+program
+    .option('-f, --from [from]', 'specify input language')
+    .option('-t, --to [to]', 'specify output language')
+    .option('-p, --proxy [proxy]', 'specify a socks agent')
+    .action(runTranslate)
 
-// console.log('🚀')
-console.log(chalk.blueBright(`检测到:"${from}"`))
-translate(text, {to, from }).then(res => {
-    spinner.stop()
-    spinner.clear()
-    console.log(chalk.green(to) ,chalk.green('->'), chalk.greenBright(res.text))
-}).catch(err => {
-    spinner.stop()
-    spinner.clear()
-    console.error(chalk.redBright(err))
-})
+// 未知命令会报错
+program.on('command:*', function () {
+    console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
+    process.exit(1);
+  });
+
+program.parse(process.argv)
