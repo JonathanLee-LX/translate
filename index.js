@@ -59,10 +59,5 @@ program
     .option('-p, --proxy [proxy]', 'specify a socks agent')
     .action(runTranslate)
 
-// 未知命令会报错
-program.on('command:*', function () {
-    console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
-    process.exit(1);
-  });
 
 program.parse(process.argv)
