@@ -12,7 +12,7 @@ or
 
 ## Usage
 
-After you installed success, you can use it like below.
+After installed, you can use it like below.
 ![usage](./usage.png)
 
 ## Proxy
