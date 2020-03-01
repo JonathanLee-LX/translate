@@ -3,8 +3,8 @@ const chalk = require('chalk')
 const ora = require('ora')
 
 module.exports = (text, to, from) => {
-    const enReg = /^[a-zA-Z]+$/
-    const zhReg = /^[\u4e00-\u9fa5]+$/
+    const enReg = /^[a-zA-Z]+/
+    const zhReg = /^[\u4e00-\u9fa5]+/
     const isEn = enReg.test(text)
     const isZH = zhReg.test(text)
 
