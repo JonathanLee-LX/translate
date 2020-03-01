@@ -18,24 +18,22 @@ const config = JSON.parse(fs.readFileSync(happyRCPath, 'utf8').toString())
 
 program.version(pkg.version)
 
-const runConfig = (action, cmdObj) => {
+const runConfig = (action, key, value) => {
     if(action === 'set') {
-        const newConfig = {...config, proxy: program.proxy}
-        console.log(newConfig)
+        const newConfig = {...config, [key]: value}
         fs.writeFile(happyRCPath, JSON.stringify(newConfig), 'utf8', (err) => {
-            if(err) console.error(err)
-            console.log(chalk.green('set config proxy success!'))
+            if(err) throw err
+            console.log(chalk.green(`set config ${key} ${value} proxy success!`))
         })
     }else if(action === 'reset') {
         fs.writeFile(happyRCPath, JSON.stringify({}), 'utf8', err => {
-            if(err) console.error(err)
-            console.log(chalk.blue('reset config'))
+            if(err) throw err
+            console.log(chalk.blue('reset config success!'))
         })
     }
 }
 
-program.command('config <action>')
-    .option('-p, --proxy', 'specify a proxy')
+program.command('config <action> [key] [value]')
     .action(runConfig)
 
 const runTranslate = (dir, cmdObj) => {
@@ -56,7 +54,6 @@ const runTranslate = (dir, cmdObj) => {
 program
     .option('-f, --from [from]', 'specify input language')
     .option('-t, --to [to]', 'specify output language')
-    .option('-p, --proxy [proxy]', 'specify a socks agent')
     .action(runTranslate)
 
 
