@@ -1,4 +1,4 @@
-const translate = require('google-translate-api')
+const translate = require('@jonathanleelx/google-translate-api')
 const chalk = require('chalk')
 const ora = require('ora')
 
