@@ -23,7 +23,7 @@ module.exports = (text, to, from) => {
     }
 
 
-    console.log(chalk.blueBright(`检测到:"${from}"`))
+    console.log(chalk.blueBright(`检测到:"${from || '未知'}"`))
     const spinner = ora().start()
     translate(text, {to, from }).then(res => {
         spinner.stop()
@@ -32,7 +32,7 @@ module.exports = (text, to, from) => {
     }).catch(err => {
         spinner.stop()
         spinner.clear()
-        console.error(chalk.redBright(err))
+        throw err
     })
 
 }
