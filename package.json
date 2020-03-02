@@ -1,6 +1,6 @@
 {
   "name": "happy-translate",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Translate tool with commander line.",
   "main": "index.js",
   "scripts": {
